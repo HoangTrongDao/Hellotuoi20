@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chúc Mừng Sinh Nhật Tuổi 20!</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700 &family=Pacifico&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+        }
+        .font-creative {
+            font-family: 'Pacifico', cursive;
+        }
+        /* Hiệu ứng pháo hoa/sao rơi nhẹ */
+        @keyframes drift {
+            0% { transform: translateY(-10px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+        }
+        .confetti {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background-color: #38bdf8;
+            border-radius: 50%;
+            animation: drift 4s linear infinite;
+        }
+    </style>
+</head>
+<body class="text-slate-200 min-h-screen relative overflow-x-hidden pb-12">
+
+    <div id="confetti-container" class="absolute inset-0 pointer-events-none overflow-hidden z-0"></div>
+
+    <div class="max-w-4xl mx-auto px-4 pt-12 relative z-10">
+        
+        <header class="text-center mb-12">
+            <h1 class="font-creative text-5xl md:text-6xl text-sky-400 mb-4 tracking-wide drop-shadow-[0_5px_5px_rgba(0,0,0,0.8)]">
+                Happy 20th Birthday!
+            </h1>
+            <p class="text-lg md:text-xl text-slate-400 font-light">
+                Chào đón tuổi 20 rực rỡ, bản lĩnh và tràn đầy hoài bão của chàng trai! 🚀
+            </p>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+            <div class="flex justify-center items-center">
+                <div class="relative group">
+                    <div class="absolute -inset-1 bg-gradient-to-r from-sky-500 to-indigo-500 rounded-2xl blur opacity-75 group-hover:opacity-100 transition duration-1000 group-hover:duration-200"></div>
+                    <div class="relative bg-slate-900 rounded-2xl p-3">
+                        <img src="trongdao.png" 
+                             alt="Birthday Boy" 
+                             class="w-72 h-72 object-cover rounded-xl shadow-2xl">
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-slate-900/60 backdrop-blur-md p-6 rounded-2xl border border-slate-800 flex flex-col justify-center">
+                <h2 class="text-xl font-bold text-sky-300 mb-3">Chapter 20: Bản Lĩnh & Trưởng Thành</h2>
+                <p class="text-slate-300 leading-relaxed text-sm mb-4">
+                    Tuổi 20 không còn là những bước chân ngập ngừng, mà là xuất phát điểm của một người đàn ông trưởng thành. Chúc bạn luôn giữ vững ngọn lửa đam mê, dám nghĩ dám làm và gặt hái được những thành công vang dội trên con đường sắp tới!
+                </p>
+                <div class="text-xs text-indigo-400 font-mono">#ChucMungSinhNhat #Tuoi20RucRo</div>
+            </div>
+        </div>
+
+        <hr class="border-slate-800 my-10">
+
+        <section class="grid grid-cols-1 md:grid-cols-5 gap-8">
+            <div class="md:col-span-2 bg-slate-900/80 border border-slate-800 p-6 rounded-2xl shadow-xl">
+                <h3 class="text-lg font-bold text-indigo-400 mb-4 flex items-center gap-2">
+                    ✍️ Gửi Lời Chúc Của Bạn
+                </h3>
+                <form id="wishForm" class="space-y-4">
+                    <div>
+                        <label class="block text-xs uppercase tracking-wider text-slate-400 mb-1">Tên của bạn</label>
+                        <input type="text" id="senderName" required placeholder="Ví dụ: tên của câu này"
+                               class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-sky-500 transition">
+                    </div>
+                    <div>
+                        <label class="block text-xs uppercase tracking-wider text-slate-400 mb-1">Lời chúc tốt đẹp nhất</label>
+                        <textarea id="senderWish" required rows="4" placeholder="Chúc bạn tuổi 20 thật bùng nổ, luôn mỉm cười nhé..."
+                                  class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-sky-500 transition"></textarea>
+                    </div>
+                    <button type="submit" id="submitBtn"
+                            class="w-full bg-gradient-to-r from-sky-500 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 text-white font-bold py-2.5 px-4 rounded-lg text-sm transition shadow-lg shadow-indigo-500/20">
+                        Gửi Lời Chúc 🎉
+                    </button>
+                </form>
+            </div>
+
+            <div class="md:col-span-3">
+                <h3 class="text-lg font-bold text-sky-400 mb-4 flex items-center gap-2">
+                    ✉️ Hộp Thư Lời Chúc Tuổi 20
+                </h3>
+                <div id="wishesContainer" class="space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+                    <div class="bg-slate-800/40 border border-slate-700/50 p-4 rounded-xl">
+                        <p class="text-sm text-slate-300 italic">"Chưa có lời chúc nào được gửi. Hãy là người đầu tiên để lại lời nhắn!"</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <script>
+        // Địa chỉ Web App API từ Google Apps Script (Sẽ cấu hình ở bước 2)
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxdcwgp5Zb3aZBl3ZG1mnUY41Vya-NIdlGAolq_B8DclwOM_DDaDDbCgNMo_qY8rPZWtg/exec';
+
+        // Tạo hiệu ứng hạt bay nền cho đẹp mắt
+        const container = document.getElementById('confetti-container');
+        for (let i = 0; i < 30; i++) {
+            const confetti = document.createElement('div');
+            confetti.classList.add('confetti');
+            confetti.style.left = Math.random() * 100 + 'vw';
+            confetti.style.animationDelay = Math.random() * 4 + 's';
+            confetti.style.backgroundColor = ['#38bdf8', '#818cf8', '#34d399', '#f43f5e'][Math.floor(Math.random() * 4)];
+            container.appendChild(confetti);
+        }
+
+        // Mảng lưu trữ lời chúc tạm thời trên giao diện (Hoặc load từ API nếu muốn nâng cao)
+        let localWishes = [];
+
+        function renderWishes() {
+            const container = document.getElementById('wishesContainer');
+            if(localWishes.length === 0) return;
+            
+            container.innerHTML = localWishes.map(item => `
+                <div class="bg-slate-800/60 border border-indigo-900/50 p-4 rounded-xl shadow-md transition transform hover:-translate-y-1 duration-300">
+                    <div class="flex justify-between items-center mb-2">
+                        <span class="font-bold text-sky-400 text-sm">👤 ${item.name}</span>
+                        <span class="text-[10px] text-slate-500">${item.time}</span>
+                    </div>
+                    <p class="text-slate-300 text-sm leading-relaxed">${item.wish}</p>
+                </div>
+            `).join('');
+        }
+
+        // Xử lý gửi Form lời chúc lên Google Sheets qua API
+        document.getElementById('wishForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const btn = document.getElementById('submitBtn');
+            const name = document.getElementById('senderName').value;
+            const wish = document.getElementById('senderWish').value;
+            const time = new Date().toLocaleString('vi-VN', {hour: '2-digit', minute:'2-digit', day: '2-digit', month: '2-digit'});
+
+            btn.disabled = true;
+            btn.innerText = "Đang gửi đi...";
+
+            // Thêm ngay vào giao diện để người dùng thấy luôn
+            localWishes.unshift({ name, wish, time });
+            renderWishes();
+
+            // Gọi API gửi lên Google Sheets
+            if(SCRIPT_URL !== 'THAY_LINK_API_CỦA_BẠN_VÀO_ĐÂY') {
+                fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, wish, time })
+                })
+                .then(() => {
+                    alert('Gửi lời chúc thành công rồi nhé! 🎉');
+                    document.getElementById('wishForm').reset();
+                    btn.disabled = false;
+                    btn.innerText = "Gửi Lời Chúc 🎉";
+                })
+                .catch(error => {
+                    console.error('Lỗi:', error);
+                    btn.disabled = false;
+                    btn.innerText = "Gửi lại 🎉";
+                });
+            } else {
+                // Nếu chưa cấu hình API thì chỉ chạy offline tạm thời
+                alert('Lời chúc đã hiện trên trang web! (Cần cấu hình API ở bước 2 để lưu vào Google Sheets).');
+                document.getElementById('wishForm').reset();
+                btn.disabled = false;
+                btn.innerText = "Gửi Lời Chúc 🎉";
+            }
+        });
+    </script>
+</body>
+</html>
