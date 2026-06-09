@@ -85,7 +85,7 @@
                 <form id="wishForm" class="space-y-4">
                     <div>
                         <label class="block text-xs uppercase tracking-wider text-slate-400 mb-1">Tên của bạn</label>
-                        <input type="text" id="senderName" required placeholder="Ví dụ: Nhập tên của cậu ở đây"
+                        <input type="text" id="senderName" required placeholder="Ví dụ: nhập tên của cậu vào đây"
                                class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-sky-500 transition">
                     </div>
                     <div>
@@ -102,11 +102,11 @@
 
             <div class="md:col-span-3">
                 <h3 class="text-lg font-bold text-sky-400 mb-4 flex items-center gap-2">
-                    ✉️ Hộp Thư Lời Chúc Tuổi 20
+                    ✉️ Danh Sách Người Gửi Lời Chúc
                 </h3>
                 <div id="wishesContainer" class="space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
                     <div class="bg-slate-800/40 border border-slate-700/50 p-4 rounded-xl text-center">
-                        <p class="text-sm text-slate-400 italic">Đang tải các lời chúc từ Google Sheets...</p>
+                        <p class="text-sm text-slate-400 italic">Đang tải danh sách từ Google Sheets...</p>
                     </div>
                 </div>
             </div>
@@ -116,6 +116,10 @@
 
     <script>
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxdcwgp5Zb3aZBl3ZG1mnUY41Vya-NIdlGAolq_B8DclwOM_DDaDDbCgNMo_qY8rPZWtg/exec';
+        
+        // Cấu hình mật khẩu Admin của bạn tại đây để khớp với Google Sheets (Ví dụ: '123456')
+        const CONFIRM_PASSWORD = '123456'; 
+        
         let currentWishes = [];
 
         // Tạo hiệu ứng hạt bay
@@ -129,33 +133,57 @@
             container.appendChild(confetti);
         }
 
-        // Hàm hiển thị danh sách lời chúc ra màn hình (Có tích hợp nút Xóa)
+        // Hàm hiển thị danh sách (Chỉ hiện Tên công khai, Ẩn lời chúc)
         function renderWishes(wishesArray) {
             const wishesContainer = document.getElementById('wishesContainer');
             if (!wishesArray || wishesArray.length === 0) {
                 wishesContainer.innerHTML = `
                     <div class="bg-slate-800/40 border border-slate-700/50 p-4 rounded-xl">
-                        <p class="text-sm text-slate-300 italic">"Chưa có lời chúc nào được gửi. Hãy là người đầu tiên để lại lời nhắn!"</p>
+                        <p class="text-sm text-slate-300 italic">"Chưa có ai gửi lời nhắn. Hãy là người đầu tiên nhé!"</p>
                     </div>`;
                 return;
             }
             
-            wishesContainer.innerHTML = wishesArray.map(item => `
-                <div class="bg-slate-800/60 border border-indigo-900/50 p-4 rounded-xl shadow-md transition transform hover:-translate-y-1 duration-300 relative group/card">
+            wishesContainer.innerHTML = wishesArray.map((item, index) => `
+                <div class="bg-slate-800/60 border border-indigo-900/50 p-4 rounded-xl shadow-md relative">
                     <div class="flex justify-between items-center mb-2">
                         <span class="font-bold text-sky-400 text-sm">👤 ${item.name}</span>
                         <div class="flex items-center gap-2">
                             <span class="text-[10px] text-slate-500">${item.time}</span>
+                            
+                            <button onclick="viewSecretWish(${index})" 
+                                    class="text-xs text-sky-400 hover:text-sky-300 bg-slate-700/50 px-2 py-0.5 rounded transition">
+                                🔑 Xem
+                            </button>
                             <button onclick="deleteWish(${item.row})" 
-                                    class="text-slate-500 hover:text-rose-400 text-xs transition p-1 rounded hover:bg-slate-700/50" 
-                                    title="Xóa lời chúc này (Chỉ dành cho Admin)">
+                                    class="text-slate-500 hover:text-rose-400 text-xs p-1 rounded hover:bg-slate-700/50" 
+                                    title="Xóa">
                                 🗑️
                             </button>
                         </div>
                     </div>
-                    <p class="text-slate-300 text-sm leading-relaxed pr-6">${item.wish}</p>
+                    <p id="wish-text-${index}" class="text-slate-500 text-xs italic bg-slate-900/40 p-2 rounded border border-slate-800 select-none">
+                        🔒 [Lời chúc đã được ẩn - Chỉ Admin mới có quyền xem]
+                    </p>
                 </div>
             `).join('');
+        }
+
+        // Hàm mở khóa xem nội dung lời chúc dành cho Admin
+        function viewSecretWish(index) {
+            const password = prompt("Vui lòng nhập mật mã Admin để đọc lời chúc này:");
+            if (password === null) return;
+
+            if (password === CONFIRM_PASSWORD) {
+                const targetParagraph = document.getElementById(`wish-text-${index}`);
+                // Hiển thị lời chúc thật đã lưu trong mảng dữ liệu
+                targetParagraph.innerText = `💬 Lời chúc: "${currentWishes[index].wish}"`;
+                targetParagraph.classList.remove('text-slate-500', 'italic', 'bg-slate-900/40');
+                targetParagraph.classList.add('text-emerald-300', 'text-sm', 'bg-slate-900/80', 'font-medium');
+                alert("Xác thực Admin thành công! Đã mở khóa lời chúc.");
+            } else {
+                alert("Sai mật mã! Bạn không có quyền xem nội dung này.");
+            }
         }
 
         // Tự động gọi API lấy tất cả lời chúc
@@ -174,15 +202,9 @@
 
         // Hàm xử lý khi Admin bấm nút Xóa
         function deleteWish(rowId) {
-            const password = prompt("Vui lòng nhập mật mã Admin để xóa lời chúc này:");
-            if (password === null) return; // Người dùng ấn Hủy
+            const password = prompt("Vui lòng nhập mật mã Admin để xác nhận xóa:");
+            if (password === null) return;
 
-            if (!password.trim()) {
-                alert("Mật mã không được để trống!");
-                return;
-            }
-
-            // Gửi yêu cầu xóa lên hệ thống API
             fetch(SCRIPT_URL, {
                 method: 'POST',
                 mode: 'no-cors',
@@ -194,14 +216,10 @@
                 })
             })
             .then(() => {
-                alert('Yêu cầu xóa đã được gửi! Hệ thống đang cập nhật lại...');
-                // Tải lại danh sách mới sau khi xóa xong
+                alert('Yêu cầu xóa đã được gửi đi!');
                 setTimeout(loadAllWishes, 1500);
             })
-            .catch(error => {
-                console.error('Lỗi xóa:', error);
-                alert('Có lỗi xảy ra trong quá trình xóa dữ liệu.');
-            });
+            .catch(error => console.error('Lỗi xóa:', error));
         }
 
         window.addEventListener('DOMContentLoaded', loadAllWishes);
@@ -224,7 +242,7 @@
                 body: JSON.stringify({ name, wish, time })
             })
             .then(() => {
-                alert('Gửi lời chúc thành công rồi nhé! 🎉');
+                alert('Gửi lời chúc thành công rồi nhé! Lời chúc của bạn đã được mã hóa bảo mật. 🎉');
                 document.getElementById('wishForm').reset();
                 btn.disabled = false;
                 btn.innerText = "Gửi Lời Chúc 🎉";
