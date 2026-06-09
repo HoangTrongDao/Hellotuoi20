@@ -14,7 +14,6 @@
         .font-creative {
             font-family: 'Pacifico', cursive;
         }
-        /* Hiệu ứng pháo hoa/sao rơi nhẹ */
         @keyframes drift {
             0% { transform: translateY(-10px) rotate(0deg); opacity: 1; }
             100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
@@ -27,7 +26,6 @@
             border-radius: 50%;
             animation: drift 4s linear infinite;
         }
-        /* Thanh cuộn đẹp cho hộp thư */
         .custom-scrollbar::-webkit-scrollbar {
             width: 6px;
         }
@@ -87,7 +85,7 @@
                 <form id="wishForm" class="space-y-4">
                     <div>
                         <label class="block text-xs uppercase tracking-wider text-slate-400 mb-1">Tên của bạn</label>
-                        <input type="text" id="senderName" required placeholder="Ví dụ: nhập tên của cậu vào đây"
+                        <input type="text" id="senderName" required placeholder="Ví dụ: Nhập tên của cậu ở đây"
                                class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-sky-500 transition">
                     </div>
                     <div>
@@ -117,13 +115,10 @@
     </div>
 
     <script>
-        // Địa chỉ Web App API từ Google Apps Script của bạn
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxdcwgp5Zb3aZBl3ZG1mnUY41Vya-NIdlGAolq_B8DclwOM_DDaDDbCgNMo_qY8rPZWtg/exec';
-
-        // Mảng lưu trữ lời chúc tạm thời trên bộ nhớ web
         let currentWishes = [];
 
-        // Tạo hiệu ứng hạt bay nền
+        // Tạo hiệu ứng hạt bay
         const container = document.getElementById('confetti-container');
         for (let i = 0; i < 30; i++) {
             const confetti = document.createElement('div');
@@ -134,7 +129,7 @@
             container.appendChild(confetti);
         }
 
-        // Hàm hiển thị danh sách lời chúc ra màn hình
+        // Hàm hiển thị danh sách lời chúc ra màn hình (Có tích hợp nút Xóa)
         function renderWishes(wishesArray) {
             const wishesContainer = document.getElementById('wishesContainer');
             if (!wishesArray || wishesArray.length === 0) {
@@ -146,17 +141,24 @@
             }
             
             wishesContainer.innerHTML = wishesArray.map(item => `
-                <div class="bg-slate-800/60 border border-indigo-900/50 p-4 rounded-xl shadow-md transition transform hover:-translate-y-1 duration-300">
+                <div class="bg-slate-800/60 border border-indigo-900/50 p-4 rounded-xl shadow-md transition transform hover:-translate-y-1 duration-300 relative group/card">
                     <div class="flex justify-between items-center mb-2">
                         <span class="font-bold text-sky-400 text-sm">👤 ${item.name}</span>
-                        <span class="text-[10px] text-slate-500">${item.time}</span>
+                        <div class="flex items-center gap-2">
+                            <span class="text-[10px] text-slate-500">${item.time}</span>
+                            <button onclick="deleteWish(${item.row})" 
+                                    class="text-slate-500 hover:text-rose-400 text-xs transition p-1 rounded hover:bg-slate-700/50" 
+                                    title="Xóa lời chúc này (Chỉ dành cho Admin)">
+                                🗑️
+                            </button>
+                        </div>
                     </div>
-                    <p class="text-slate-300 text-sm leading-relaxed">${item.wish}</p>
+                    <p class="text-slate-300 text-sm leading-relaxed pr-6">${item.wish}</p>
                 </div>
             `).join('');
         }
 
-        // Tự động gọi API lấy tất cả lời chúc khi truy cập trang
+        // Tự động gọi API lấy tất cả lời chúc
         function loadAllWishes() {
             fetch(SCRIPT_URL)
                 .then(response => response.json())
@@ -165,16 +167,46 @@
                     renderWishes(currentWishes);
                 })
                 .catch(error => {
-                    console.error('Lỗi khi tải lời chúc:', error);
-                    // Nếu lỗi mạng hoặc sheet trống, reset giao diện về trạng thái trống thay vì xoay vòng loading
+                    console.error('Lỗi khi tải:', error);
                     renderWishes([]);
                 });
         }
 
-        // Chạy tải dữ liệu ngay khi tải xong trang
+        // Hàm xử lý khi Admin bấm nút Xóa
+        function deleteWish(rowId) {
+            const password = prompt("Vui lòng nhập mật mã Admin để xóa lời chúc này:");
+            if (password === null) return; // Người dùng ấn Hủy
+
+            if (!password.trim()) {
+                alert("Mật mã không được để trống!");
+                return;
+            }
+
+            // Gửi yêu cầu xóa lên hệ thống API
+            fetch(SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ 
+                    action: "delete", 
+                    row: rowId, 
+                    password: password 
+                })
+            })
+            .then(() => {
+                alert('Yêu cầu xóa đã được gửi! Hệ thống đang cập nhật lại...');
+                // Tải lại danh sách mới sau khi xóa xong
+                setTimeout(loadAllWishes, 1500);
+            })
+            .catch(error => {
+                console.error('Lỗi xóa:', error);
+                alert('Có lỗi xảy ra trong quá trình xóa dữ liệu.');
+            });
+        }
+
         window.addEventListener('DOMContentLoaded', loadAllWishes);
 
-        // Xử lý gửi Form lời chúc lên Google Sheets
+        // Xử lý gửi Form lời chúc
         document.getElementById('wishForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const btn = document.getElementById('submitBtn');
@@ -185,14 +217,9 @@
             btn.disabled = true;
             btn.innerText = "Đang gửi đi...";
 
-            // Đẩy ngay vào danh sách hiển thị trên web giúp tạo cảm giác mượt mà tức thì
-            currentWishes.unshift({ name, wish, time });
-            renderWishes(currentWishes);
-
-            // Gửi dữ liệu thật lên Google Sheets
             fetch(SCRIPT_URL, {
                 method: 'POST',
-                mode: 'no-cors', // Sử dụng chế độ no-cors để tránh lỗi phân quyền từ Google Apps Script công cộng
+                mode: 'no-cors',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ name, wish, time })
             })
@@ -201,13 +228,10 @@
                 document.getElementById('wishForm').reset();
                 btn.disabled = false;
                 btn.innerText = "Gửi Lời Chúc 🎉";
-                
-                // Đồng bộ lại dữ liệu chuẩn xác từ Sheets sau 1.5 giây
                 setTimeout(loadAllWishes, 1500); 
             })
             .catch(error => {
                 console.error('Lỗi gửi:', error);
-                alert('Có lỗi xảy ra, nhưng lời chúc đã được cập nhật tạm thời trên trang!');
                 btn.disabled = false;
                 btn.innerText = "Gửi Lời Chúc 🎉";
             });
